@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://yw61qt22xri1"]
+
+[ext_resource type="Script" uid="uid://cxbt5ikemjda" path="res://scripts/highlight.gd" id="1_f612t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tjogv"]
+size = Vector2(50, 50)
+
+[node name="Highlight" type="Area2D" groups=["highlight"]]
+script = ExtResource("1_f612t")
+
+[node name="highlight_sprite" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+scale = Vector2(0.4, 0.4)
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(26, 26)
+shape = SubResource("RectangleShape2D_tjogv")
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
