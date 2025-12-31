@@ -15,6 +15,7 @@ var board_pos := Vector2(0, 0)
 
 func _ready():
 	self.input_pickable = true
+	self.modulate.a = 0.6
 	if piece_type == PIECE_TYPE.GREEN:
 		highlight_sprite.texture = load("res://assets/green-outline.png")
 	if piece_type == PIECE_TYPE.WHITE:
