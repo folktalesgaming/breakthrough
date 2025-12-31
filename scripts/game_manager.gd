@@ -6,8 +6,8 @@ extends Node2D
 
 const PIECE = preload("uid://d4cv5cg3gdgpr")
 const HIGHLIGHT = preload("uid://yw61qt22xri1")
-const PANEL_BORDER_000 = preload("uid://dwh7h6wj5w1qu")
-const PANEL_BORDER_015 = preload("uid://gxjpxo6yqhqt")
+const SELECTED_BORDER = preload("uid://bvko4rgfojd5r")
+const DEFAULT_BOARDER = preload("uid://gxjpxo6yqhqt")
 const PIECE_SIZE := 48
 
 var board_matrix = [
@@ -65,8 +65,8 @@ func center_board() -> void:
 # Function to initialize the game
 func init():
 	current_player = 0
-	p_1.texture = PANEL_BORDER_000
-	p_2.texture = PANEL_BORDER_015
+	p_1.texture = SELECTED_BORDER
+	p_2.texture = DEFAULT_BOARDER
 	board.centered = false
 	center_board()
 	
@@ -101,7 +101,10 @@ func remove_highlight():
 			hg.queue_free()
 	
 func on_piece_select(piece_node: Piece, pos: Vector2):
+	if selected_piece:
+		selected_piece.set_sprite()
 	selected_piece = piece_node
+	piece_node.set_sprite(true)
 	remove_highlight()
 	
 	if current_player != piece_node.piece_type:
@@ -126,13 +129,14 @@ func on_move(new_pos: Vector2):
 	board_matrix[int(new_pos.x)][int(new_pos.y)] = current_player+1
 	selected_piece.position = get_local_pos(new_pos)
 	selected_piece.board_pos = new_pos
+	selected_piece.set_sprite()
 	remove_highlight()
 	
 	current_player = (current_player+1)%2
 	
 	if current_player == 0:
-		p_1.texture = PANEL_BORDER_000
-		p_2.texture = PANEL_BORDER_015
+		p_1.texture = SELECTED_BORDER
+		p_2.texture = DEFAULT_BOARDER
 	else:
-		p_1.texture = PANEL_BORDER_015
-		p_2.texture = PANEL_BORDER_000
+		p_1.texture = DEFAULT_BOARDER
+		p_2.texture = SELECTED_BORDER
