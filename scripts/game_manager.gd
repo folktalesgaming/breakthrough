@@ -24,6 +24,9 @@ var current_player = 0;
 var is_game_paused = false;
 var is_choosing = false;
 var selected_piece: Piece;
+var green_piece_count = board_matrix.size()*2;
+var white_piece_count = board_matrix.size()*2;
+var is_game_finished = false;
 
 # get the local position as per the board position
 func get_local_pos(cell: Vector2i) -> Vector2:
@@ -35,15 +38,11 @@ func get_local_pos(cell: Vector2i) -> Vector2:
 		cell.y * cell_size.y + (cell_size.y - PIECE_SIZE) * 0.5
 	)
 
-#func get_world_pos(pos: Vector2) -> Vector2i:
-	#var board_size: Vector2 = board.get_rect().size
-	#var cell_size: Vector2 = board_size/GRID_SIZE
-	#var local := pos - board.global_position
-	#
-	#return Vector2i(
-		#int(local.x / cell_size.x),
-		#int(local.y / cell_size.y),
-	#)
+func get_piece_from_pos(pos: Vector2):
+	for piece in board.get_children():
+		if piece is Piece:
+			if piece.board_pos == pos:
+				return piece as Piece
 
 # Function to render pieces in correct x, y position
 func render_piece(x: int, y: int, piece_type: int):
@@ -64,9 +63,13 @@ func center_board() -> void:
 
 # Function to initialize the game
 func init():
+	is_game_finished = false
 	current_player = 0
 	p_1.texture = SELECTED_BORDER
 	p_2.texture = DEFAULT_BOARDER
+	green_piece_count = board_matrix.size()*2;
+	white_piece_count = board_matrix.size()*2;
+
 	board.centered = false
 	center_board()
 	
@@ -89,6 +92,8 @@ func render_highlight(x: int, y: int, piece_type: int):
 	board.add_child(high_light)
 
 func _ready():
+	get_viewport().physics_object_picking_first_only = false
+	get_viewport().physics_object_picking_sort = true
 	init()
 	
 	for piece in board.get_children():
@@ -101,6 +106,8 @@ func remove_highlight():
 			hg.queue_free()
 	
 func on_piece_select(piece_node: Piece, pos: Vector2):
+	if is_game_finished:
+		return
 	if selected_piece:
 		selected_piece.set_sprite()
 	selected_piece = piece_node
@@ -125,13 +132,45 @@ func on_piece_select(piece_node: Piece, pos: Vector2):
 				render_highlight(x1, curr_y, pt)
 
 func on_move(new_pos: Vector2):
+#	Remove / Capture the opponent piece if the new position has opponent piece
+	var new_board_pos_piece = board_matrix[int(new_pos.x)][int(new_pos.y)]
+	if new_board_pos_piece != 0 and new_board_pos_piece != current_player+1:
+		if current_player == 0:
+			white_piece_count -= 1
+		elif current_player == 1:
+			green_piece_count -= 1
+		var captured_piece = get_piece_from_pos(new_pos)
+		if captured_piece:
+			captured_piece.queue_free()
+	
 	board_matrix[int(selected_piece.board_pos.x)][int(selected_piece.board_pos.y)] = 0
-	board_matrix[int(new_pos.x)][int(new_pos.y)] = current_player+1
 	selected_piece.position = get_local_pos(new_pos)
 	selected_piece.board_pos = new_pos
 	selected_piece.set_sprite()
 	remove_highlight()
 	
+	board_matrix[int(new_pos.x)][int(new_pos.y)] = current_player+1
+	
+	if white_piece_count <= 0 or green_piece_count <= 0:
+		is_game_finished = true
+		if current_player == 0:
+			print("Green player win by all capture")
+		elif current_player == 1:
+			print("White player win by all capture")
+		return
+	
+	if current_player == 0 and int(new_pos.x) == board_matrix.size()-1:
+		is_game_finished = true
+		print("Winner green player by base takeover")
+		return
+	if current_player == 1 and int(new_pos.x) == 0:
+		is_game_finished = true
+		print("Winner white player by base takeover")
+		return
+	
+	next_player()
+
+func next_player():
 	current_player = (current_player+1)%2
 	
 	if current_player == 0:
