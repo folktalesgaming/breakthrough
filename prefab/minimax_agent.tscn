@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://durrluvrmibel"]
+
+[ext_resource type="Script" uid="uid://njfoog1nx1if" path="res://scripts/minimax.gd" id="1_siyyk"]
+
+[node name="MinimaxAgent" type="Node2D"]
+script = ExtResource("1_siyyk")

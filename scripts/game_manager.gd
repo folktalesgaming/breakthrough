@@ -10,7 +10,7 @@ const SELECTED_BORDER = preload("uid://bvko4rgfojd5r")
 const DEFAULT_BOARDER = preload("uid://gxjpxo6yqhqt")
 const PIECE_SIZE := 48
 
-var board_matrix = [
+var board_matrix: Array[PackedInt32Array] = [
 	[1, 1, 1, 1, 1, 1, 1, 1],
 	[1, 1, 1, 1, 1, 1, 1, 1],
 	[0, 0, 0, 0, 0, 0, 0, 0],
@@ -27,6 +27,9 @@ var selected_piece: Piece;
 var green_piece_count = board_matrix.size()*2;
 var white_piece_count = board_matrix.size()*2;
 var is_game_finished = false;
+var is_vs_computer = true;
+var is_computer_moving = false;
+var ai_agent_type = "minimax";
 
 # get the local position as per the board position
 func get_local_pos(cell: Vector2i) -> Vector2:
@@ -100,6 +103,15 @@ func _ready():
 		if piece.has_signal("piece_selected"):
 			piece.connect("piece_selected", Callable(self, "on_piece_select"))
 
+func _process(_delta):
+	if !is_game_finished and !is_game_paused:
+		if is_vs_computer and current_player == 1 and !is_computer_moving:
+			is_computer_moving = true
+			if ai_agent_type == "minimax":
+				var minimax_agent = Minimax.new(board_matrix, current_player)
+				var new_pos_coord = minimax_agent.minimax_search()
+				on_move(new_pos_coord)
+
 func remove_highlight():
 	for hg in board.get_children():
 		if hg.is_in_group("highlight"):
@@ -169,6 +181,7 @@ func on_move(new_pos: Vector2):
 		return
 	
 	next_player()
+	is_computer_moving = false
 
 func next_player():
 	current_player = (current_player+1)%2

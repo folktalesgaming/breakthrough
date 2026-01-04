@@ -11,6 +11,9 @@
 [node name="GameManager" type="Node2D" parent="."]
 script = ExtResource("2_p57ef")
 
+[node name="AI_Agents" type="Node2D" parent="."]
+unique_name_in_owner = true
+
 [node name="Board" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 position = Vector2(576, 324)
