@@ -2,3 +2,7 @@
 .godot/
 /android/
 *.tmp
+
+# Exports
+/export
+export_presets.cfg

@@ -1,3 +1,3 @@
 # Breakthrough
 
-Simple two player zero-sum game called Breakthrough. Developed to test out AI agent.
+Simple two player zero-sum game called Breakthrough. Developed to test AI algorithms
